@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -47,10 +46,12 @@ class _LoginState extends State<Login> {
     final data = jsonDecode(response.body);
     int value = data['value'];
     String pesan = data['message'];
+    String usernameAPI = data['username'];
+    String namaAPI = data['nama'];
     if (value == 1) {
       setState(() {
         _loginStatus = LoginStatus.signIn;
-        savePref(value);
+        savePref(value, usernameAPI, namaAPI);
       });
       print(pesan);
     } else {
@@ -58,10 +59,12 @@ class _LoginState extends State<Login> {
     }
   }
 
-  savePref(int value) async {
+  savePref(int value, String username, String nama) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       preferences.setInt("value", value);
+      preferences.setString("nama", nama);
+      preferences.setString("username", username);
       preferences.commit();
     });
   }
@@ -251,6 +254,22 @@ class _MainMenuState extends State<MainMenu> {
     });
   }
 
+  String username = "", nama = "";
+  getPref() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      username = preferences.getString("username");
+      nama = preferences.getString("nama");
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPref();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -265,7 +284,7 @@ class _MainMenuState extends State<MainMenu> {
         ],
       ),
       body: Center(
-        child: Text("Menu Utama"),
+        child: Text("Username : $username, \nNama : $nama"),
       ),
     );
   }
