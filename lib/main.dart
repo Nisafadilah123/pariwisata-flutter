@@ -140,7 +140,7 @@ class _LoginState extends State<Login> {
                         MaterialPageRoute(builder: (context) => Register()));
                   },
                   child: Text(
-                    "Create a new account, in here",
+                    "Create the new account, in here",
                     textAlign: TextAlign.center,
                   ),
                 )
@@ -183,7 +183,7 @@ class _RegisterState extends State<Register> {
 
   save() async {
     final response = await http.post(
-        Uri.parse("http://192.168.1.23/login/api/login.php"),
+        Uri.parse("http://192.168.1.23/login/api/register.php"),
         body: {"nama": nama, "username": username, "password": password});
     final data = jsonDecode(response.body);
     int value = data['value'];
@@ -212,8 +212,17 @@ class _RegisterState extends State<Register> {
                   return "Please Insert Full Name";
                 }
               },
-              onSaved: (e) => username = e,
+              onSaved: (e) => nama = e,
               decoration: InputDecoration(labelText: "Nama Lengkap"),
+            ),
+            TextFormField(
+              validator: (e) {
+                if (e.isEmpty) {
+                  return "Please Insert Full Name";
+                }
+              },
+              onSaved: (e) => username = e,
+              decoration: InputDecoration(labelText: "Username"),
             ),
             TextFormField(
               obscureText: _secureText,
