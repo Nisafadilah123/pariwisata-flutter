@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -47,10 +46,12 @@ class _LoginState extends State<Login> {
     final data = jsonDecode(response.body);
     int value = data['value'];
     String pesan = data['message'];
+    String usernameAPI = data['username'];
+    String namaAPI = data['nama'];
     if (value == 1) {
       setState(() {
         _loginStatus = LoginStatus.signIn;
-        savePref(value);
+        savePref(value, usernameAPI, namaAPI);
       });
       print(pesan);
     } else {
@@ -58,10 +59,12 @@ class _LoginState extends State<Login> {
     }
   }
 
-  savePref(int value) async {
+  savePref(int value, String username, String nama) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       preferences.setInt("value", value);
+      preferences.setString("nama", nama);
+      preferences.setString("username", username);
       preferences.commit();
     });
   }
@@ -137,7 +140,7 @@ class _LoginState extends State<Login> {
                         MaterialPageRoute(builder: (context) => Register()));
                   },
                   child: Text(
-                    "Create a new account, in here",
+                    "Create the new account, in here",
                     textAlign: TextAlign.center,
                   ),
                 )
@@ -180,7 +183,7 @@ class _RegisterState extends State<Register> {
 
   save() async {
     final response = await http.post(
-        Uri.parse("http://192.168.1.23/login/api/login.php"),
+        Uri.parse("http://192.168.1.23/login/api/register.php"),
         body: {"nama": nama, "username": username, "password": password});
     final data = jsonDecode(response.body);
     int value = data['value'];
@@ -209,8 +212,17 @@ class _RegisterState extends State<Register> {
                   return "Please Insert Full Name";
                 }
               },
-              onSaved: (e) => username = e,
+              onSaved: (e) => nama = e,
               decoration: InputDecoration(labelText: "Nama Lengkap"),
+            ),
+            TextFormField(
+              validator: (e) {
+                if (e.isEmpty) {
+                  return "Please Insert Full Name";
+                }
+              },
+              onSaved: (e) => username = e,
+              decoration: InputDecoration(labelText: "Username"),
             ),
             TextFormField(
               obscureText: _secureText,
@@ -251,6 +263,22 @@ class _MainMenuState extends State<MainMenu> {
     });
   }
 
+  String username = "", nama = "";
+  getPref() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      username = preferences.getString("username");
+      nama = preferences.getString("nama");
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPref();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -265,7 +293,7 @@ class _MainMenuState extends State<MainMenu> {
         ],
       ),
       body: Center(
-        child: Text("Menu Utama"),
+        child: Text("Username : $username, \nNama : $nama"),
       ),
     );
   }
